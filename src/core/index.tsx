@@ -26,7 +26,9 @@ const defaultOpts: ICoreOptions = {
   cacheProvider: false,
   disableInjectedProvider: false,
   providerOptions: {},
-  network: ""
+  network: "",
+  title: "Connect your wallet",
+  subTitle: "Link your wallet and account for a better user experience.",
 };
 
 export class Core {
@@ -50,7 +52,9 @@ export class Core {
       disableInjectedProvider: options.disableInjectedProvider,
       cacheProvider: options.cacheProvider,
       providerOptions: options.providerOptions,
-      network: options.network
+      network: options.network,
+      title: options.title,
+      subTitle: options.subTitle
     });
 
     this.providerController.on(CONNECT_EVENT, provider =>
@@ -155,6 +159,8 @@ export class Core {
         onClose={this.onClose}
         resetState={this.resetState}
         lightboxOpacity={this.lightboxOpacity}
+        title={this.providerController.getTitle()}
+        subTitle={this.providerController.getSubTitle()}
       />,
       document.getElementById(WEB3_CONNECT_MODAL_ID)
     );

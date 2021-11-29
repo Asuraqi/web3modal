@@ -33,6 +33,8 @@ export class ProviderController {
   private providers: IProviderDisplayWithConnector[] = [];
   private providerOptions: IProviderOptions;
   private network: string = "";
+  private title: string = "Connect your wallet";
+  private subTitle: string = "Link your wallet and account for a better user experience.";
 
   constructor(opts: IProviderControllerOptions) {
     this.cachedProvider = getLocal(CACHED_PROVIDER_KEY) || "";
@@ -41,6 +43,8 @@ export class ProviderController {
     this.shouldCacheProvider = opts.cacheProvider;
     this.providerOptions = opts.providerOptions;
     this.network = opts.network;
+    this.title = opts.title;
+    this.subTitle = opts.subTitle;
 
     this.injectedProvider = getInjectedProvider();
 
@@ -170,6 +174,14 @@ export class ProviderController {
       x => x.id === id,
       undefined
     );
+  }
+
+  public getTitle() {
+    return this.title
+  }
+
+  public getSubTitle() {
+    return this.subTitle
   }
 
   public getProviderOption(id: string, key: string) {

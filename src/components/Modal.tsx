@@ -7,7 +7,11 @@ import {
   MODAL_LIGHTBOX_CLASSNAME,
   MODAL_CONTAINER_CLASSNAME,
   MODAL_HITBOX_CLASSNAME,
-  MODAL_CARD_CLASSNAME
+  MODAL_CARD_CLASSNAME,
+  MODAL_TITLE_CONTAINER_CLASSNAME,
+  MODAL_TITLE_CLASSNAME,
+  MODAL_SUBTITLE_CLASSNAME,
+  MODAL_CONTAINER_CONTENT_CLASSNAME,
 } from "../constants";
 import { SimpleFunction, IProviderUserOptions, ThemeColors } from "../helpers";
 
@@ -81,6 +85,32 @@ const SHitbox = styled.div`
   bottom: 0;
 `;
 
+interface IModalContainerContentStyleProps {
+  show: boolean;
+  themeColors: ThemeColors;
+  maxWidth?: number;
+}
+
+const SModalContainerContent = styled.div<IModalContainerContentStyleProps>`
+  position: relative;
+  width: 100%;
+  background-color: ${({ themeColors }) => themeColors.background};
+  border-radius: 12px;
+  margin: 10px;
+  padding: 0;
+  opacity: ${({ show }) => (show ? 1 : 0)};
+  visibility: ${({ show }) => (show ? "visible" : "hidden")};
+  pointer-events: ${({ show }) => (show ? "auto" : "none")};
+  max-width: ${({ maxWidth }) => (maxWidth ? `${maxWidth}px` : "800px")};
+  min-width: fit-content;
+  max-height: 100%;
+  overflow: auto;
+
+  @media screen and (max-width: 768px) {
+    max-width: ${({ maxWidth }) => (maxWidth ? `${maxWidth}px` : "500px")};
+    grid-template-columns: 1fr;
+  }
+  `;
 interface IModalCardStyleProps {
   show: boolean;
   themeColors: ThemeColors;
@@ -111,12 +141,58 @@ const SModalCard = styled.div<IModalCardStyleProps>`
   }
 `;
 
+interface IModalTitleStyleProps {
+  title: string;
+  subTitle: string;
+  themeColors: ThemeColors;
+}
+
+interface IStyedThemeColorOptions {
+  themeColors: ThemeColors;
+}
+
+const SModalTitleContainer = styled.div<IModalTitleStyleProps>`
+  transition: background-color 0.2s ease-in-out;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background-color: ${({ themeColors }) => themeColors.background};
+  border-radius: 12px;
+  padding: 24px 16px;
+  @media screen and (max-width: 768px) {
+    padding: 1vw;
+  }
+`;
+
+const SModalTitle = styled.div<IStyedThemeColorOptions>`
+  width: 100%;
+  font-size: 36px;
+  font-weight: 900;
+  margin-top: 0.5em;
+  color: ${({ themeColors }) => themeColors.main};
+  @media screen and (max-width: 768px) {
+    font-size: 5vw;
+  }
+`;
+const SModalSubTitle = styled.div<IStyedThemeColorOptions>`
+  width: 100%;
+  font-size: 24px;
+  margin: 0.333em 0;
+  color: ${({ themeColors }) => themeColors.secondary};
+  @media screen and (max-width: 768px) {
+    font-size: 4vw;
+  }
+`;
 interface IModalProps {
   themeColors: ThemeColors;
   userOptions: IProviderUserOptions[];
   onClose: SimpleFunction;
   resetState: SimpleFunction;
   lightboxOpacity: number;
+  title: string,
+  subTitle: string
 }
 
 interface IModalState {
@@ -170,7 +246,7 @@ export class Modal extends React.Component<IModalProps, IModalState> {
   public render = () => {
     const { show, lightboxOffset } = this.state;
 
-    const { onClose, lightboxOpacity, userOptions, themeColors } = this.props;
+    const { onClose, lightboxOpacity, userOptions, themeColors, title, subTitle } = this.props;
 
     return (
       <SLightbox
@@ -182,25 +258,48 @@ export class Modal extends React.Component<IModalProps, IModalState> {
       >
         <SModalContainer className={MODAL_CONTAINER_CLASSNAME} show={show}>
           <SHitbox className={MODAL_HITBOX_CLASSNAME} onClick={onClose} />
-          <SModalCard
-            className={MODAL_CARD_CLASSNAME}
+          <SModalContainerContent 
+            className={MODAL_CONTAINER_CONTENT_CLASSNAME}
             show={show}
             themeColors={themeColors}
             maxWidth={userOptions.length < 3 ? 500 : 800}
-            ref={c => (this.mainModalCard = c)}
           >
-            {userOptions.map(provider =>
-              !!provider ? (
-                <Provider
-                  name={provider.name}
-                  logo={provider.logo}
-                  description={provider.description}
-                  themeColors={themeColors}
-                  onClick={provider.onClick}
-                />
-              ) : null
-            )}
-          </SModalCard>
+            <SModalTitleContainer
+                themeColors={themeColors}
+                title={title}
+                subTitle={subTitle}
+                className={MODAL_TITLE_CONTAINER_CLASSNAME}
+            >
+              <SModalTitle themeColors={themeColors} className={MODAL_TITLE_CLASSNAME}>
+                {title}
+              </SModalTitle>
+              <SModalSubTitle
+                themeColors={themeColors}
+                className={MODAL_SUBTITLE_CLASSNAME}
+              >
+                {subTitle}
+              </SModalSubTitle>
+            </SModalTitleContainer>
+            <SModalCard
+              className={MODAL_CARD_CLASSNAME}
+              show={show}
+              themeColors={themeColors}
+              maxWidth={userOptions.length < 3 ? 500 : 800}
+              ref={c => (this.mainModalCard = c)}
+            >
+                {userOptions.map(provider =>
+                  !!provider ? (
+                    <Provider
+                      name={provider.name}
+                      logo={provider.logo}
+                      description={provider.description}
+                      themeColors={themeColors}
+                      onClick={provider.onClick}
+                    />
+                  ) : null
+                )}
+            </SModalCard>
+          </SModalContainerContent>
         </SModalContainer>
       </SLightbox>
     );
